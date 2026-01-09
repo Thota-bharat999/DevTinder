@@ -14,39 +14,58 @@ try{
         firstName,lastName,emailId,password:passwordhash,
     })
 
-    await user.save()
-    res.send("User Added Successfully")
+    const savedUser=await user.save()
+    const token = await savedUser.getJSON();
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 8 * 3600000)
+    });
+    res.json({message:"User Added Successfully", data:savedUser})
 }catch(err){
     res.status(400).send(err.message)
 }
 })
-authRouter.post('/login',async(req,res)=>{
-    try{
-        const {emailId,password}=req.body;
-        const user =await User.findOne({emailId:emailId})
-        if(!user){
-            throw new Error("Invalid Login Credentials")
-        }
-        const isPasswordValid=await user.validatePassword(password)
-        if(!isPasswordValid){
-            const token=await user.getJSON()
-            console.log(token)
+authRouter.post('/login', async (req, res) => {
+  try {
+    const { emailId, email, password } = req.body;
+    const userEmail = (emailId || email)?.trim().toLowerCase();
 
-            // add the cookie teh response backto the user
-            res.cookie("token",token, {
-                expires:new Date(Date.now()+8*360000)
-            })
-            res.send("Login Successfully")
-        }else{
-            throw new Error("invalid Credentials")
-        }
+    if (!userEmail || !password) {
+      return res.status(400).send("email and password are required");
+    }
 
+    const user = await User.findOne({
+      emailId: { $regex: `^${userEmail}$`, $options: 'i' }
+    });
 
+    console.log('Login attempt for:', userEmail);
 
-    }catch(err){
-    res.status(400).send(err.message)
-}
-})
+    if (!user) {
+      console.log('User not found for:', userEmail);
+      return res.status(400).send("Invalid email or password");
+    }
+
+    const isPasswordValid = await user.validatePassword(password);
+
+    if (!isPasswordValid) {
+      return res.status(400).send("Invalid email or password");
+    }
+
+    const token = await user.getJSON();
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 8 * 3600000)
+    });
+
+    return res.send(user);
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Server error during login");
+  }
+});
 
 authRouter.post("/logout",async(req,res)=>{
     res.cookie("token",null,{

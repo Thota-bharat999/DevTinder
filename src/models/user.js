@@ -24,8 +24,6 @@ const userSchema=new mongoose.Schema({
     password:{
         type:String,
         required:true,
-        unique:true,
-        lowercase:true,
         trim:true,
         validate(value){
             if(!validator.isStrongPassword(value, {
@@ -35,24 +33,25 @@ const userSchema=new mongoose.Schema({
                 minNumbers: 0,
                 minSymbols: 0
             })){
-                throw new Error("password is not Strong Engough",+ value)
+                throw new Error("password is not strong enough")
             }
         }
     },
     age:{
         type:Number
     },
-    Gender:{
-        type:String,
-        validate(value){
-            if(["male","female","other"].includes(value)){
-                throw new Error("Gender Data is must be Valid")
-            }
-        }
-    },
+    gender: {
+  type: String,
+  validate(value) {
+    if (!["male", "female", "other"].includes(value)) {
+      throw new Error("Gender must be male, female, or other")
+    }
+  }
+},
+
     photoUrl:{
         type:String,
-        default:"https://stock.adobe.com/in/images/simple-gray-avatar-icons-representing-male-and-female-profiles-vector-minimalist-design-with-a-professional-touch/844844652",
+        default:"https://geographyandyou.com/images/user-profile.png",
         validate(value){
             if(!validator.isURL(value)){
                 throw new Error("Photo URL is Invalid")
@@ -78,8 +77,16 @@ userSchema.methods.getJSON=async function(){
 userSchema.methods.validatePassword=async function(passwordInputByUSer){
     const user=this
     const hashedPassword=this.password
-    const isPasswordMatch=await bcrypt.compare(passwordInputByUSer,hashedPassword)
-    return isPasswordMatch
+    if(!passwordInputByUSer || !hashedPassword){
+        return false
+    }
+    try{
+        const isPasswordMatch=await bcrypt.compare(passwordInputByUSer,hashedPassword)
+        return isPasswordMatch
+    }catch(err){
+        console.error('Error comparing password:', err)
+        return false
+    }
 }
 
  const user= mongoose.model("User",userSchema);

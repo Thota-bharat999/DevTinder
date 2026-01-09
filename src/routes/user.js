@@ -4,13 +4,18 @@ const ConnectionRequest=require("../models/connectionRequest")
 const User=require("../models/user")
 const userRouter=express.Router();
 
-userRouter.get("/user/requests",UserAuth,async(req,res)=>{
+userRouter.get("/user/requests/received",UserAuth,async(req,res)=>{
     try{
         const loggedInUserId=req.user
         const connectionRequests=await ConnectionRequest.find({
             toUserId:loggedInUserId,
             status:"interested"
-        }).populate("fromUserId",["firstName","lastName","photoUrl"])
+        }).populate("fromUserId", [
+  "firstName",
+  "lastName",
+  "photoUrl",
+  "about"
+])
         res.json({
             message:"Data fetched Successfully",
             data:connectionRequests
@@ -29,14 +34,28 @@ const connectionRequests=await ConnectionRequest.find({
         {toUserId:loggedInUserId,status:"accepted"},
         {fromUserId:loggedInUserId,status:"accepted"}
     ]
-}).populate("fromUserId",["firstName","lastName","age","photoUrl"]).populate("toUserId",["firstName","lastName","age","photoUrl"])
+})
+.populate("fromUserId", [
+  "firstName",
+  "lastName",
+  "age",
+  "photoUrl",
+  "about"
+])
+.populate("toUserId", [
+  "firstName",
+  "lastName",
+  "age",
+  "photoUrl",
+  "about"
+])
 const data=connectionRequests.map((row)=>{
     if(row.fromUserId._id.toString()===loggedInUserId._id.toString()){
         return row.toUserId
     }
     return row.fromUserId
 })
-console.log(connectionRequests)
+
 
 res.json({
     data
