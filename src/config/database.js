@@ -1,8 +1,6 @@
 const mongoose=require("mongoose");
 const ConnectDB=async()=>{
-    await mongoose.connect(
-    "mongodb+srv://DevTinder:DevTinder123@cluster0.ciqbnzp.mongodb.net/DevTinderDB"
-    )
-
+    
+    await mongoose.connect(process.env.MONGO_URI)
 }
 module.exports=ConnectDB

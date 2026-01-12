@@ -9,7 +9,7 @@ const UserAuth=async(req,res,next)=>{
       throw new Error("Token is Missing")   
     }
 
-    const decodeObj=await jwt.verify(token,"DevTinderScretKey@123")
+    const decodeObj=await jwt.verify(token,process.env.JWT_SECRET)
     const {_id}=decodeObj;
 
     const user=await User.findById(_id)
