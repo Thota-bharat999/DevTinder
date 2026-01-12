@@ -42,7 +42,6 @@ authRouter.post('/login', async (req, res) => {
     console.log('Login attempt for:', userEmail);
 
     if (!user) {
-      console.log('User not found for:', userEmail);
       return res.status(400).send("Invalid email or password");
     }
 
@@ -52,20 +51,27 @@ authRouter.post('/login', async (req, res) => {
       return res.status(400).send("Invalid email or password");
     }
 
-    const token = await user.getJSON();
+    const token = await user.getJSON(); // this should return JWT
 
     res.cookie("token", token, {
       httpOnly: true,
-      expires: new Date(Date.now() + 8 * 3600000)
+      secure: true,        // REQUIRED on AWS
+      sameSite: "none",    // REQUIRED for cross-domain
+      maxAge: 8 * 60 * 60 * 1000
     });
 
-    return res.send(user);
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      user
+    });
 
   } catch (err) {
     console.error(err);
     return res.status(500).send("Server error during login");
   }
 });
+
 
 authRouter.post("/logout",async(req,res)=>{
     res.cookie("token",null,{
