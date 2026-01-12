@@ -55,8 +55,8 @@ authRouter.post('/login', async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,        // REQUIRED on AWS
-      sameSite: "none",    // REQUIRED for cross-domain
+      secure: false,        // REQUIRED on AWS
+      sameSite: "lax",    // REQUIRED for cross-domain
       maxAge: 8 * 60 * 60 * 1000
     });
 
