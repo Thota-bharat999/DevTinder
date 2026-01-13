@@ -9,6 +9,7 @@ const requestRouter=require("./routes/request");
 const User = require('./models/user');
 const userRouter = require('./routes/user');
 const cors=require("cors")
+require("./utils/cornJobs")
 
 app.use(cors({
     origin:"http://localhost:5173",
