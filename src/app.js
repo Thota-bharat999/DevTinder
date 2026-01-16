@@ -8,7 +8,8 @@ const profileRouter=require("./routes/profile");
 const requestRouter=require("./routes/request");
 const User = require('./models/user');
 const userRouter = require('./routes/user');
-const cors=require("cors")
+const cors=require("cors");
+const paymentRouter = require("./routes/payment");
 require("./utils/cornJobs")
 
 app.use(cors({
@@ -22,7 +23,7 @@ app.use("/",authRouter);
 app.use("/",profileRouter);
 app.use("/",requestRouter);
 app.use("/",userRouter)
-
+app.use("/",paymentRouter)
 
 
 
