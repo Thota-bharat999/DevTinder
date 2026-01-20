@@ -18,9 +18,9 @@ const initilizeSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
+    socket.on("joinChat", ({ firstName, lastName, userId, targetUserId }) => {
       const roomId = getScretRoomId(userId, targetUserId);
-      console.log(firstName + " joining Room : " + roomId);
+      console.log(firstName + " joined room : " + roomId);
       socket.join(roomId);
     });
 
@@ -48,6 +48,7 @@ const initilizeSocket = (server) => {
 
           await chat.save();
 
+          // IMPORTANT: send senderId
           io.to(roomId).emit("messageRecived", {
             senderId: userId,
             firstName,
@@ -60,7 +61,9 @@ const initilizeSocket = (server) => {
       }
     );
 
-    socket.on("disconnect", () => {});
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
+    });
   });
 };
 
